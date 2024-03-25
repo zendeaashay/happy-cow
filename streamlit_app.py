@@ -66,7 +66,7 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
 # Load the datasets from the Excel file
-excel_file_path = 'data/Dataset final.xlsx'
+excel_file_path = 'data/HCdata.xlsx'
 student_weekly_df = pd.read_excel(excel_file_path, sheet_name='Student Weekly', usecols=['Week', 'Sales'])
 staff_weekly_df = pd.read_excel(excel_file_path, sheet_name='Staff  Weekly', usecols=['Week', 'Sales'])
 tourist_weekly_df = pd.read_excel(excel_file_path, sheet_name='Tourist  Weekly', usecols=['Week', 'Sales'])
