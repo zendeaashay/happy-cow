@@ -8,14 +8,20 @@ st.set_page_config(page_title='Happy Cow Case Study Group 7', page_icon='📊')
 st.title('📊 Happy Cow Case Study Group 7')
 df = pd.read_excel('data/Dataset final.xlsx')
 
+@st.experimental_memo
 def load_data():
+    # Load each sheet
     staff_weekly = pd.read_excel('data/Dataset final.xlsx', sheet_name='Staff Weekly')
     tourist_weekly = pd.read_excel('data/Dataset final.xlsx', sheet_name='Tourist Weekly')
-    # Assuming there is a 'Sales' column in both sheets which we want to visualize
+    student_weekly = pd.read_excel('data/Dataset final.xlsx', sheet_name='Student Weekly')
+    
+    # Add a 'Type' column to differentiate the data
     staff_weekly['Type'] = 'Staff'
     tourist_weekly['Type'] = 'Tourist'
-    # Combine the two dataframes into one for easier plotting
-    combined_weekly_df = pd.concat([staff_weekly, tourist_weekly], ignore_index=True)
+    student_weekly['Type'] = 'Student'
+    
+    # Combine the DataFrames
+    combined_weekly_df = pd.concat([staff_weekly, tourist_weekly, student_weekly], ignore_index=True)
     return combined_weekly_df
 
 combined_weekly_df = load_data()
@@ -23,10 +29,10 @@ combined_weekly_df = load_data()
 # Preprocess the data (e.g., parse dates, handle missing values)
 # ...
 
-# Assuming you want to compare weekly sales for staff and tourists
 st.subheader('Weekly Sales Comparison')
 
-# Create a single bar chart with one axis for all weeks
+# Assuming 'Week' and 'Sales' are the column names in your Excel sheets
+# Create a single bar chart with one axis for all weeks and sales for staff, tourists, and students
 sales_comparison_chart = alt.Chart(combined_weekly_df).mark_bar().encode(
     x='Week:N',
     y='Sales:Q',
