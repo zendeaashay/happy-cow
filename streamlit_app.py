@@ -59,15 +59,3 @@ st.altair_chart(flavor_sales_chart, use_container_width=True)
 
 
 
-st.subheader('Weekly Sales Comparison')
-
-# Assuming 'Week' and 'Sales' are the column names in your Excel sheets
-# Create a single bar chart with one axis for all weeks and sales for staff, tourists, and students
-sales_comparison_chart = alt.Chart(combined_flavors_df).mark_bar().encode(
-    x='Week:N',
-    y='Sales:Q',
-    color='Type:N',
-    tooltip=['Week', 'Type', 'Sales']
-).interactive()
-
-st.altair_chart(sales_comparison_chart, use_container_width=True)
