@@ -40,7 +40,21 @@ def load_data():
 
 
 combined_flavors_df = load_data()
+# Ensure 'Sales' column is numeric
+combined_flavors_df['Sales'] = pd.to_numeric(combined_flavors_df['Sales'], errors='coerce')
 
+# Generate the chart
+try:
+    flavor_sales_chart = alt.Chart(combined_flavors_df).mark_line().encode(
+        x='Week:N',
+        y=alt.Y('Sales:Q', title='Sales'),  # Ensure this field matches your DataFrame
+        color='Type:N',
+        tooltip=['Week', 'Type', 'Flavor', 'Sales']
+    ).interactive()
+
+    st.altair_chart(flavor_sales_chart, use_container_width=True)
+except Exception as e:
+    st.error(f"An error occurred: {e}")
 st.subheader('Flavor Sales Comparison')
 
 # Allow users to select one or more flavors
