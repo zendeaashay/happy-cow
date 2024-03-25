@@ -7,7 +7,7 @@ import altair as alt
 st.set_page_config(page_title='Happy Cow Case Study Group 7', page_icon='📊')
 st.title('📊 Happy Cow Case Study Group 7')
 
-file_path = '/Users/aashayzende/Desktop/happy-cow/data/Dataset final.xlsx'
+file_path = 'data/Dataset final.xlsx'
 df = pd.ExcelFile(file_path)
 
 @st.experimental_memo
