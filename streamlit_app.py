@@ -8,80 +8,41 @@ st.set_page_config(page_title='Happy Cow Case Study Group 7', page_icon='📊')
 st.title('📊 Happy Cow Case Study Group 7')
 
 file_path = 'data/Dataset final.xlsx'
-df = pd.ExcelFile(file_path)
 
-@st.experimental_memo
-def load_data():
-    file_path = 'data/Dataset final.xlsx'
-    staff_weekly = pd.read_excel(file_path, sheet_name='Staff Weekly')
-    tourist_weekly = pd.read_excel(file_path, sheet_name='Tourist Weekly')
-    student_weekly = pd.read_excel(file_path, sheet_name='Student Weekly')
-    
-    # Add a 'Type' column to differentiate the data
-    staff_weekly['Type'] = 'Staff'
-    tourist_weekly['Type'] = 'Tourist'
-    student_weekly['Type'] = 'Student'
-    
-    # Automatically determine value_vars by excluding id_vars
-    id_vars = ['Week', 'Type']
-    staff_value_vars = [col for col in staff_weekly.columns if col not in id_vars]
-    tourist_value_vars = [col for col in tourist_weekly.columns if col not in id_vars]
-    student_value_vars = [col for col in student_weekly.columns if col not in id_vars]
-    
-    # Melt the DataFrames
-    staff_flavors = staff_weekly.melt(id_vars=id_vars, value_vars=staff_value_vars, var_name='Flavor', value_name='Sales')
-    tourist_flavors = tourist_weekly.melt(id_vars=id_vars, value_vars=tourist_value_vars, var_name='Flavor', value_name='Sales')
-    student_flavors = student_weekly.melt(id_vars=id_vars, value_vars=student_value_vars, var_name='Flavor', value_name='Sales')
+sheet_names = ['Staff Weekly', 'Tourist Weekly', 'Student Weekly']
+data_frames = {sheet_name: pd.read_excel(file_path, sheet_name=sheet_name) for sheet_name in sheet_names}
 
-# Combine the melted DataFrames
-    combined_flavors_df = pd.concat([staff_flavors, tourist_flavors, student_flavors], ignore_index=True)
+# Dropdown to select the customer type
+customer_type = st.selectbox('Select Customer Type', options=sheet_names)
 
-# Ensure 'Sales' column is numeric
-    combined_flavors_df['Sales'] = pd.to_numeric(combined_flavors_df['Sales'], errors='coerce')
+# Load the selected DataFrame
+df = data_frames[customer_type]
 
-    # Check if 'Sales' exists in the combined DataFrame
-    if 'Sales' not in combined_flavors_df.columns:
-        st.error("'Sales' column not found in the combined DataFrame.")
-    # Combine the melted DataFrames
-    combined_flavors_df = pd.concat([staff_flavors, tourist_flavors, student_flavors], ignore_index=True)
-    return combined_flavors_df
+# Melt the DataFrame to long format for easier plotting with Altair
+id_vars = ['Week']
+value_vars = [col for col in df.columns if col not in id_vars + ['Sales', 'Header']]
+melted_df = df.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Sales')
 
-
-
-combined_flavors_df = load_data()
-# Ensure 'Sales' column is numeric
-combined_flavors_df['Sales'] = pd.to_numeric(combined_flavors_df['Sales'], errors='coerce')
-
-# Generate the chart
-try:
-    flavor_sales_chart = alt.Chart(combined_flavors_df).mark_line().encode(
-        x='Week:N',
-        y=alt.Y('Sales:Q', title='Sales'),  # Ensure this field matches your DataFrame
-        color='Type:N',
-        tooltip=['Week', 'Type', 'Flavor', 'Sales']
-    ).interactive()
-
-    st.altair_chart(flavor_sales_chart, use_container_width=True)
-except Exception as e:
-    st.error(f"An error occurred: {e}")
-st.subheader('Flavor Sales Comparison')
-
-# Allow users to select one or more flavors
-selected_flavors = st.multiselect('Select Flavors', options=combined_flavors_df['Flavor'].unique())
-
-# Filter data based on selected flavors
-filtered_data = combined_flavors_df[combined_flavors_df['Flavor'].isin(selected_flavors)]
-
-# Create a line chart to compare selected flavors across weeks and customer types
-flavor_sales_chart = alt.Chart(filtered_data).mark_line().encode(
-    x='Week:N',
-    y=alt.Y('Sales:Q', title='Sales'),
-    color='Type:N',
-    tooltip=['Week', 'Type', 'Flavor', 'Sales'],
-    strokeDash='Flavor',
+# Sales Trends Over Time for Each Flavor
+st.subheader('Sales Trends Over Time')
+flavors = st.multiselect('Select Flavors', options=melted_df['Flavor'].unique(), default=melted_df['Flavor'].unique()[:5])
+filtered_df = melted_df[melted_df['Flavor'].isin(flavors)]
+line_chart = alt.Chart(filtered_df).mark_line().encode(
+    x='Week',
+    y='Sales',
+    color='Flavor',
+    tooltip=['Week', 'Flavor', 'Sales']
 ).interactive()
+st.altair_chart(line_chart, use_container_width=True)
 
-st.altair_chart(flavor_sales_chart, use_container_width=True)
-
+# Comparison of Flavor Popularity
+st.subheader('Comparison of Flavor Popularity')
+bar_chart = alt.Chart(filtered_df).mark_bar().encode(
+    x='Flavor',
+    y='sum(Sales)',
+    color='Flavor',
+    tooltip=['Flavor', 'sum(Sales)']
+).interactive()
+st.altair_chart(bar_chart, use_container_width=True)
 
 
