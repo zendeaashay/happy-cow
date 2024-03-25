@@ -21,21 +21,21 @@ df = data_frames[customer_type]
 
 # Assuming 'Week' is a consistent column across all sheets and you want to exclude 'Sales' and 'Header' from melting
 id_vars = ['Week']
-value_vars = [col for col in df.columns if col not in id_vars + ['Sales', 'Header']]
+value_vars = [col for col in df.columns if col not in id_vars + ['Sale', 'Header']]
 
 # Confirm 'value_vars' only contains valid column names
 st.write(f"Columns to melt: {value_vars}")  # This will display the columns to be melted in your Streamlit app for debugging
 
 # Before melting, let's ensure there's no issue with the DataFrame
-if 'Sales' not in df.columns:
-    st.error("The 'Sales' column is missing from the DataFrame. Please check the data loading process.")
+if 'Sale' not in df.columns:
+    st.error("The 'Sale' column is missing from the DataFrame. Please check the data loading process.")
 else:
-    melted_df = df.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Sales')
+    melted_df = df.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Sale')
     # Proceed with your visualization code...
 # Melt the DataFrame to long format for easier plotting with Altair
 id_vars = ['Week']
-value_vars = [col for col in df.columns if col not in id_vars + ['Sales', 'Header']]
-melted_df = df.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Sales')
+value_vars = [col for col in df.columns if col not in id_vars + ['Sale', 'Header']]
+melted_df = df.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Sale')
 
 # Sales Trends Over Time for Each Flavor
 st.subheader('Sales Trends Over Time')
@@ -43,9 +43,9 @@ flavors = st.multiselect('Select Flavors', options=melted_df['Flavor'].unique(),
 filtered_df = melted_df[melted_df['Flavor'].isin(flavors)]
 line_chart = alt.Chart(filtered_df).mark_line().encode(
     x='Week',
-    y='Sales',
+    y='Sale',
     color='Flavor',
-    tooltip=['Week', 'Flavor', 'Sales']
+    tooltip=['Week', 'Flavor', 'Sale']
 ).interactive()
 st.altair_chart(line_chart, use_container_width=True)
 
@@ -53,9 +53,9 @@ st.altair_chart(line_chart, use_container_width=True)
 st.subheader('Comparison of Flavor Popularity')
 bar_chart = alt.Chart(filtered_df).mark_bar().encode(
     x='Flavor',
-    y='sum(Sales)',
+    y='sum(Sale)',
     color='Flavor',
-    tooltip=['Flavor', 'sum(Sales)']
+    tooltip=['Flavor', 'sum(Sale)']
 ).interactive()
 st.altair_chart(bar_chart, use_container_width=True)
 
