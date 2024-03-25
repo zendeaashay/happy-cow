@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import altair as alt
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 # Page title
 st.set_page_config(page_title='Happy Cow Case Study Group 7', page_icon='📊')
 st.title('📊 Happy Cow Case Study Group 7')
@@ -59,18 +60,53 @@ bar_chart = alt.Chart(filtered_df).mark_bar().encode(
 ).interactive()
 st.altair_chart(bar_chart, use_container_width=True)
 
-# Exclude non-numeric columns or transform them appropriately
-df_numeric = df.drop(columns=['Week'])  # Excluding the 'Week' column
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 
-# Ensure the DataFrame only contains numeric values
-df_numeric = df_numeric.apply(pd.to_numeric, errors='coerce')
+# Load the datasets from the Excel file
+excel_file_path = 'data/Dataset final.xlsx'
+student_weekly_df = pd.read_excel(excel_file_path, sheet_name='Student Weekly', usecols=['Week', 'Sales'])
+staff_weekly_df = pd.read_excel(excel_file_path, sheet_name='Staff  Weekly', usecols=['Week', 'Sales'])
+tourist_weekly_df = pd.read_excel(excel_file_path, sheet_name='Tourist  Weekly', usecols=['Week', 'Sales'])
 
-# Now you can apply KMeans or any clustering algorithm
-# Determine the optimal number of clusters as per your analysis
-optimal_clusters = 3  # Example: determined through methods like the Elbow Method
+# Convert the 'Week' column into datetime and extract the week number for clustering
+student_weekly_df['Week_Number'] = pd.to_datetime(student_weekly_df['Week']).dt.week
+staff_weekly_df['Week_Number'] = pd.to_datetime(staff_weekly_df['Week']).dt.week
+tourist_weekly_df['Week_Number'] = pd.to_datetime(tourist_weekly_df['Week']).dt.week
 
-kmeans = KMeans(n_clusters=optimal_clusters, random_state=42)
-clusters = kmeans.fit_predict(df_numeric)  # Fit the model on the numeric DataFrame
+# Scale the 'Sales' values between 0 and 1
+scaler = MinMaxScaler()
+student_weekly_df['Sales_Scaled'] = scaler.fit_transform(student_weekly_df[['Sales']])
+staff_weekly_df['Sales_Scaled'] = scaler.fit_transform(staff_weekly_df[['Sales']])
+tourist_weekly_df['Sales_Scaled'] = scaler.fit_transform(tourist_weekly_df[['Sales']])
 
-# Add the cluster assignments back to the original DataFrame if needed
-df['Cluster'] = clusters
+# Prepare the data for clustering
+student_X = student_weekly_df[['Week_Number', 'Sales_Scaled']].values
+staff_X = staff_weekly_df[['Week_Number', 'Sales_Scaled']].values
+tourist_X = tourist_weekly_df[['Week_Number', 'Sales_Scaled']].values
+
+# Perform KMeans clustering
+kmeans_student = KMeans(n_clusters=3, random_state=42)
+kmeans_staff = KMeans(n_clusters=3, random_state=42)
+kmeans_tourist = KMeans(n_clusters=3, random_state=42)
+
+student_weekly_df['Cluster'] = kmeans_student.fit_predict(student_X)
+staff_weekly_df['Cluster'] = kmeans_staff.fit_predict(staff_X)
+tourist_weekly_df['Cluster'] = kmeans_tourist.fit_predict(tourist_X)
+
+# Plotting the clusters for Student Weekly data as an example
+plt.figure(figsize=(14, 7))
+
+# Scatter plot for each cluster
+for cluster in student_weekly_df['Cluster'].unique():
+    cluster_data = student_weekly_df[student_weekly_df['Cluster'] == cluster]
+    plt.scatter(cluster_data['Week_Number'], cluster_data['Sales_Scaled'], label=f'Cluster {cluster}')
+
+plt.title('KMeans Clustering of Student Weekly Sales Data')
+plt.xlabel('Week Number')
+plt.ylabel('Scaled Sales')
+plt.legend()
+plt.grid(True)
+plt.show()
