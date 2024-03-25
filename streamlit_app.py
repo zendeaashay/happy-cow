@@ -66,47 +66,32 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
 # Load the datasets from the Excel file
-excel_file_path = 'data/HCdata.xlsx'
-student_weekly_df = pd.read_excel(excel_file_path, sheet_name='Student Weekly', usecols=['Week', 'Sales'])
-staff_weekly_df = pd.read_excel(excel_file_path, sheet_name='Staff Weekly', usecols=['Week', 'Sales'])
-tourist_weekly_df = pd.read_excel(excel_file_path, sheet_name='Tourist Weekly', usecols=['Week', 'Sales'])
+file_path = 'data/HCdata.xlsx'
+sheets = ['Student Weekly', 'Staff Weekly', 'Tourist Weekly']
+data = {}
 
-# Convert the 'Week' column into datetime and extract the week number for clustering
-student_weekly_df['Week_Number'] = pd.to_datetime(student_weekly_df['Week']).dt.week
-staff_weekly_df['Week_Number'] = pd.to_datetime(staff_weekly_df['Week']).dt.week
-tourist_weekly_df['Week_Number'] = pd.to_datetime(tourist_weekly_df['Week']).dt.week
+# Read each sheet and perform preprocessing
+for sheet in sheets:
+    df = pd.read_excel(file_path, sheet_name=sheet, usecols=['Week', 'Sales'])
+    df['Week'] = pd.to_datetime(df['Week']).dt.isocalendar().week  # Convert 'Week' to week number
+    df['Sales'] = df['Sales'].astype(float)  # Ensure 'Sales' is float
+    data[sheet] = df
 
-# Scale the 'Sales' values between 0 and 1
-scaler = MinMaxScaler()
-student_weekly_df['Sales_Scaled'] = scaler.fit_transform(student_weekly_df[['Sales']])
-staff_weekly_df['Sales_Scaled'] = scaler.fit_transform(staff_weekly_df[['Sales']])
-tourist_weekly_df['Sales_Scaled'] = scaler.fit_transform(tourist_weekly_df[['Sales']])
+# Scale the 'Sales' data
+scaler = StandardScaler()
 
-# Prepare the data for clustering
-student_X = student_weekly_df[['Week_Number', 'Sales_Scaled']].values
-staff_X = staff_weekly_df[['Week_Number', 'Sales_Scaled']].values
-tourist_X = tourist_weekly_df[['Week_Number', 'Sales_Scaled']].values
+# Perform clustering for each sheet
+for sheet, df in data.items():
+    df_scaled = scaler.fit_transform(df[['Week', 'Sales']])
+    kmeans = KMeans(n_clusters=3, random_state=42)  # Choose an appropriate number of clusters
+    clusters = kmeans.fit_predict(df_scaled)
+    df['Cluster'] = clusters  # Add the cluster labels to the DataFrame
 
-# Perform KMeans clustering
-kmeans_student = KMeans(n_clusters=3, random_state=42)
-kmeans_staff = KMeans(n_clusters=3, random_state=42)
-kmeans_tourist = KMeans(n_clusters=3, random_state=42)
-
-student_weekly_df['Cluster'] = kmeans_student.fit_predict(student_X)
-staff_weekly_df['Cluster'] = kmeans_staff.fit_predict(staff_X)
-tourist_weekly_df['Cluster'] = kmeans_tourist.fit_predict(tourist_X)
-
-# Plotting the clusters for Student Weekly data as an example
-plt.figure(figsize=(14, 7))
-
-# Scatter plot for each cluster
-for cluster in student_weekly_df['Cluster'].unique():
-    cluster_data = student_weekly_df[student_weekly_df['Cluster'] == cluster]
-    plt.scatter(cluster_data['Week_Number'], cluster_data['Sales_Scaled'], label=f'Cluster {cluster}')
-
-plt.title('KMeans Clustering of Student Weekly Sales Data')
-plt.xlabel('Week Number')
-plt.ylabel('Scaled Sales')
-plt.legend()
-plt.grid(True)
-plt.show()
+    # Plotting the clusters
+    plt.figure(figsize=(10, 6))
+    plt.scatter(df['Week'], df['Sales'], c=df['Cluster'], cmap='viridis', label=sheet)
+    plt.title(f'KMeans Clustering of {sheet}')
+    plt.xlabel('Week Number')
+    plt.ylabel('Scaled Sales')
+    plt.legend()
+    plt.show()
