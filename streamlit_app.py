@@ -22,20 +22,22 @@ def load_data():
     tourist_weekly['Type'] = 'Tourist'
     student_weekly['Type'] = 'Student'
     
-    # List of columns to keep as id_vars
+    # Automatically determine value_vars by excluding id_vars
     id_vars = ['Week', 'Type']
+    staff_value_vars = [col for col in staff_weekly.columns if col not in id_vars]
+    tourist_value_vars = [col for col in tourist_weekly.columns if col not in id_vars]
+    student_value_vars = [col for col in student_weekly.columns if col not in id_vars]
     
-    # Remaining columns are considered as flavor columns
-    value_vars = [col for col in staff_weekly.columns if col not in id_vars]
-    
-    # Melt the DataFrames to have flavors as one column
-    staff_flavors = staff_weekly.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Flavor Sales')
-    tourist_flavors = tourist_weekly.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Flavor Sales')
-    student_flavors = student_weekly.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Flavor Sales')
+    # Melt the DataFrames
+    staff_flavors = staff_weekly.melt(id_vars=id_vars, value_vars=staff_value_vars, var_name='Flavor', value_name='Flavor Sales')
+    tourist_flavors = tourist_weekly.melt(id_vars=id_vars, value_vars=tourist_value_vars, var_name='Flavor', value_name='Flavor Sales')
+    student_flavors = student_weekly.melt(id_vars=id_vars, value_vars=student_value_vars, var_name='Flavor', value_name='Flavor Sales')
     
     # Combine the melted DataFrames
     combined_flavors_df = pd.concat([staff_flavors, tourist_flavors, student_flavors], ignore_index=True)
     return combined_flavors_df
+
+
 
 combined_flavors_df = load_data()
 
