@@ -59,4 +59,15 @@ bar_chart = alt.Chart(filtered_df).mark_bar().encode(
 ).interactive()
 st.altair_chart(bar_chart, use_container_width=True)
 
+# Determine the optimal number of clusters (Elbow Method example)
+inertia = []
+for k in range(1, 10):
+    kmeans = KMeans(n_clusters=k, random_state=42).fit(df)
+    inertia.append(kmeans.inertia_)
 
+# Plot inertia to find the elbow point (not shown here, but you would use a plotting library like matplotlib)
+
+# Choose an optimal number of clusters (let's assume it's 3 for this example)
+optimal_clusters = 3
+kmeans = KMeans(n_clusters=optimal_clusters, random_state=42)
+df['Cluster'] = kmeans.fit_predict(df)
