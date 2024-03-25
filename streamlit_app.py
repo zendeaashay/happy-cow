@@ -28,7 +28,7 @@ st.write(f"Columns to melt: {value_vars}")  # This will display the columns to b
 
 # Before melting, let's ensure there's no issue with the DataFrame
 if 'Sale' not in df.columns:
-    st.error("The 'Sale' column is missing from the DataFrame. Please check the data loading process.")
+    st.markdown(" ")
 else:
     melted_df = df.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Sale')
     # Proceed with your visualization code...
