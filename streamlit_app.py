@@ -12,25 +12,26 @@ df = pd.ExcelFile(file_path)
 
 @st.experimental_memo
 def load_data():
-    # Load each sheet
-    staff_weekly = pd.read_excel('data/Dataset final.xlsx', sheet_name='Staff Weekly')
-    tourist_weekly = pd.read_excel('data/Dataset final.xlsx', sheet_name='Tourist Weekly')
-    student_weekly = pd.read_excel('data/Dataset final.xlsx', sheet_name='Student Weekly')
+    file_path = 'data/Dataset final.xlsx'
+    staff_weekly = pd.read_excel(file_path, sheet_name='Staff Weekly')
+    tourist_weekly = pd.read_excel(file_path, sheet_name='Tourist Weekly')
+    student_weekly = pd.read_excel(file_path, sheet_name='Student Weekly')
     
     # Add a 'Type' column to differentiate the data
     staff_weekly['Type'] = 'Staff'
     tourist_weekly['Type'] = 'Tourist'
     student_weekly['Type'] = 'Student'
     
-    # Add a 'Type' column to differentiate the data
-    staff_weekly['Type'] = 'Staff'
-    tourist_weekly['Type'] = 'Tourist'
-    student_weekly['Type'] = 'Student'
+    # List of columns to keep as id_vars
+    id_vars = ['Week', 'Type']
+    
+    # Remaining columns are considered as flavor columns
+    value_vars = [col for col in staff_weekly.columns if col not in id_vars]
     
     # Melt the DataFrames to have flavors as one column
-    staff_flavors = staff_weekly.melt(id_vars=['Week', 'Type'], var_name='Flavor', value_name='Sales')
-    tourist_flavors = tourist_weekly.melt(id_vars=['Week', 'Type'], var_name='Flavor', value_name='Sales')
-    student_flavors = student_weekly.melt(id_vars=['Week', 'Type'], var_name='Flavor', value_name='Sales')
+    staff_flavors = staff_weekly.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Flavor Sales')
+    tourist_flavors = tourist_weekly.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Flavor Sales')
+    student_flavors = student_weekly.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Flavor Sales')
     
     # Combine the melted DataFrames
     combined_flavors_df = pd.concat([staff_flavors, tourist_flavors, student_flavors], ignore_index=True)
