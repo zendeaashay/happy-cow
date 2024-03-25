@@ -18,6 +18,20 @@ customer_type = st.selectbox('Select Customer Type', options=sheet_names)
 # Load the selected DataFrame
 df = data_frames[customer_type]
 
+
+# Assuming 'Week' is a consistent column across all sheets and you want to exclude 'Sales' and 'Header' from melting
+id_vars = ['Week']
+value_vars = [col for col in df.columns if col not in id_vars + ['Sales', 'Header']]
+
+# Confirm 'value_vars' only contains valid column names
+st.write(f"Columns to melt: {value_vars}")  # This will display the columns to be melted in your Streamlit app for debugging
+
+# Before melting, let's ensure there's no issue with the DataFrame
+if 'Sales' not in df.columns:
+    st.error("The 'Sales' column is missing from the DataFrame. Please check the data loading process.")
+else:
+    melted_df = df.melt(id_vars=id_vars, value_vars=value_vars, var_name='Flavor', value_name='Sales')
+    # Proceed with your visualization code...
 # Melt the DataFrame to long format for easier plotting with Altair
 id_vars = ['Week']
 value_vars = [col for col in df.columns if col not in id_vars + ['Sales', 'Header']]
