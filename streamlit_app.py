@@ -32,7 +32,19 @@ def load_data():
     staff_flavors = staff_weekly.melt(id_vars=id_vars, value_vars=staff_value_vars, var_name='Flavor', value_name='Flavor Sales')
     tourist_flavors = tourist_weekly.melt(id_vars=id_vars, value_vars=tourist_value_vars, var_name='Flavor', value_name='Flavor Sales')
     student_flavors = student_weekly.melt(id_vars=id_vars, value_vars=student_value_vars, var_name='Flavor', value_name='Flavor Sales')
+    # Diagnostic check to ensure 'Sales' column exists
+    if 'Sales' not in staff_flavors.columns:
+        st.error("'Sales' column not found after melting staff_weekly DataFrame.")
+    if 'Sales' not in tourist_flavors.columns:
+        st.error("'Sales' column not found after melting tourist_weekly DataFrame.")
+    if 'Sales' not in student_flavors.columns:
+        st.error("'Sales' column not found after melting student_weekly DataFrame.")
+
+    combined_flavors_df = pd.concat([staff_flavors, tourist_flavors, student_flavors], ignore_index=True)
     
+    # Check if 'Sales' exists in the combined DataFrame
+    if 'Sales' not in combined_flavors_df.columns:
+        st.error("'Sales' column not found in the combined DataFrame.")
     # Combine the melted DataFrames
     combined_flavors_df = pd.concat([staff_flavors, tourist_flavors, student_flavors], ignore_index=True)
     return combined_flavors_df
