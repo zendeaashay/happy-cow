@@ -7,7 +7,11 @@ from sklearn.preprocessing import StandardScaler
 # Page title
 st.set_page_config(page_title='Happy Cow Case Study Group 7', page_icon='📊')
 st.title('📊 Happy Cow Case Study Group 7')
-
+st.markdown("""
+    <iframe title="Happy Cow dashboard" width="1140" height="541.25"
+    src="https://app.powerbi.com/reportEmbed?reportId=08d68e57-7a2a-4cd8-955c-686ada36138d&autoAuth=true&ctid=a8eec281-aaa3-4dae-ac9b-9a398b9215e7"
+    frameborder="0" allowFullScreen="true"></iframe>
+""", unsafe_allow_html=True)
 file_path = 'data/Dataset final.xlsx'
 
 sheet_names = ['Staff Weekly', 'Tourist Weekly', 'Student Weekly']
@@ -60,38 +64,3 @@ bar_chart = alt.Chart(filtered_df).mark_bar().encode(
 ).interactive()
 st.altair_chart(bar_chart, use_container_width=True)
 
-import pandas as pd
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import MinMaxScaler
-import matplotlib.pyplot as plt
-
-# Load the datasets from the Excel file
-file_path = 'data/HCdata.xlsx'
-sheets = ['Student Weekly', 'Staff Weekly', 'Tourist Weekly']
-data = {}
-
-# Read each sheet and perform preprocessing
-for sheet in sheets:
-    df = pd.read_excel(file_path, sheet_name=sheet, usecols=['Week', 'Sales'])
-    df['Week'] = pd.to_datetime(df['Week']).dt.isocalendar().week  # Convert 'Week' to week number
-    df['Sales'] = df['Sales'].astype(float)  # Ensure 'Sales' is float
-    data[sheet] = df
-
-# Scale the 'Sales' data
-scaler = StandardScaler()
-
-# Perform clustering for each sheet
-for sheet, df in data.items():
-    df_scaled = scaler.fit_transform(df[['Week', 'Sales']])
-    kmeans = KMeans(n_clusters=3, random_state=42)  # Choose an appropriate number of clusters
-    clusters = kmeans.fit_predict(df_scaled)
-    df['Cluster'] = clusters  # Add the cluster labels to the DataFrame
-
-    # Plotting the clusters
-    plt.figure(figsize=(10, 6))
-    plt.scatter(df['Week'], df['Sales'], c=df['Cluster'], cmap='viridis', label=sheet)
-    plt.title(f'KMeans Clustering of {sheet}')
-    plt.xlabel('Week Number')
-    plt.ylabel('Scaled Sales')
-    plt.legend()
-    plt.show()
