@@ -92,7 +92,7 @@ r = pdk.Deck(
     layers=[layer],
     initial_view_state=view_state,
     map_style='mapbox://styles/mapbox/light-v9',
-    tooltip={"text": "{NAME_EN}"}
+    tooltip={"text": "NAME_EN"}
 )
 
 # Render the map with the points and tooltips for names
