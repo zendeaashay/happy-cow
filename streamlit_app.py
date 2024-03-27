@@ -11,9 +11,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title='Happy Cow Case Study Group 7', page_icon='📊')
 st.title('📊 Happy Cow Case Study Group 7')
 st.markdown("""
-    <iframe title="Happy Cow dashboard" width="1140" height="541.25"
-    src="https://app.powerbi.com/reportEmbed?reportId=08d68e57-7a2a-4cd8-955c-686ada36138d&autoAuth=true&ctid=a8eec281-aaa3-4dae-ac9b-9a398b9215e7"
-    frameborder="0" allowFullScreen="true"></iframe>
+    <iframe title="Happy Cow dashboard" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=e8de6e97-8e70-42ac-a8b1-14a041c9be78&autoAuth=true&ctid=a8eec281-aaa3-4dae-ac9b-9a398b9215e7" frameborder="0" allowFullScreen="true"></iframe>
 """, unsafe_allow_html=True)
 file_path = 'data/Dataset final.xlsx'
 
