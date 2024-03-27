@@ -64,43 +64,27 @@ bar_chart = alt.Chart(filtered_df).mark_bar().encode(
 ).interactive()
 st.altair_chart(bar_chart, use_container_width=True)
 
-melted_df['Week'] = pd.to_datetime(melted_df['Week'], format='%m/%d/%Y', errors='coerce')
-
-# Cumulative Sales Over Time
-cumulative_sales = (
-    melted_df.sort_values('Week')
-    .groupby(['Flavor'])['Sale']
-    .cumsum()
-    .reset_index()
-)
-cumulative_sales_chart = alt.Chart(cumulative_sales).mark_line().encode(
-    x='Week:T',
-    y='Sale:Q',
-    color='Flavor:N',
-    tooltip=['Week:T', 'Sale:Q', 'Flavor:N']
+# Cumulative Sales Over Time for Each Flavor
+st.subheader('Cumulative Sales Over Time')
+cumulative_sales_df = filtered_df.copy()
+cumulative_sales_df['Cumulative Sale'] = cumulative_sales_df.groupby('Flavor')['Sale'].cumsum()
+cumulative_line_chart = alt.Chart(cumulative_sales_df).mark_line().encode(
+    x='Week',
+    y='Cumulative Sale',
+    color='Flavor',
+    tooltip=['Week', 'Flavor', 'Cumulative Sale']
 ).interactive()
-st.altair_chart(cumulative_sales_chart, use_container_width=True)
+st.altair_chart(cumulative_line_chart, use_container_width=True)
 
-# Sales Distribution
-box_plot = alt.Chart(melted_df).mark_boxplot().encode(
-    x='Flavor:N',
-    y='Sale:Q',
-    color='Flavor:N',
-    tooltip=['Flavor:N', 'Sale:Q']
+# Stacked Bar Chart of Sales by Flavor Over Time
+st.subheader('Stacked Sales by Flavor Over Time')
+stacked_bar_chart = alt.Chart(filtered_df).mark_bar().encode(
+    x='Week',
+    y=alt.Y('sum(Sale)', stack='normalize'),  # This normalizes the bar heights to stack to 100%
+    color='Flavor',
+    tooltip=['Week', 'Flavor', 'sum(Sale)']
 ).interactive()
-st.altair_chart(box_plot, use_container_width=True)
-
-# Flavor Sales by Weekday
-# This requires 'Week' to be a datetime object
-melted_df['Weekday'] = melted_df['Week'].dt.day_name()
-sales_by_weekday = alt.Chart(melted_df).mark_bar().encode(
-    x='Weekday:N',
-    y='sum(Sale):Q',
-    color='Flavor:N',
-    column='Flavor:N',
-    tooltip=['Weekday:N', 'sum(Sale):Q', 'Flavor:N']
-).interactive()
-st.altair_chart(sales_by_weekday, use_container_width=True)
+st.altair_chart(stacked_bar_chart, use_container_width=True)
 
 import pydeck as pdk
 
