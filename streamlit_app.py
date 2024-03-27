@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title='Happy Cow Case Study Group 7', page_icon='📊')
 st.title('📊 Happy Cow Case Study Group 7')
 st.markdown("""
-    <iframe title="Happy Cow dashboard" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=e8de6e97-8e70-42ac-a8b1-14a041c9be78&autoAuth=true&ctid=a8eec281-aaa3-4dae-ac9b-9a398b9215e7" frameborder="0" allowFullScreen="true"></iframe>
+   https://app.powerbi.com/reportEmbed?reportId=e8de6e97-8e70-42ac-a8b1-14a041c9be78&autoAuth=true&ctid=a8eec281-aaa3-4dae-ac9b-9a398b9215e7
 """, unsafe_allow_html=True)
 file_path = 'data/Dataset final.xlsx'
 
