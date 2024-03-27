@@ -121,3 +121,36 @@ r = pdk.Deck(
 
 # Render the map with the points and tooltips for names
 st.pydeck_chart(r)
+
+# Selecting flavors and identities to visualize
+flavors = st.multiselect('Select Flavors', options=df['Flavour'].unique())
+identities = st.multiselect('Select Identities', options=df['identity'].unique())
+
+# Filtering data
+df_filtered = df[df['Flavour'].isin(flavors) & df['identity'].isin(identities)]
+
+# Radar chart
+def make_radar_chart(name, stats, attribute_labels, plot_markers, plot_str_markers):
+    labels=np.array(attribute_labels)
+    stats=np.concatenate((stats,[stats[0]]))
+    angles=np.linspace(0, 2*np.pi, len(labels), endpoint=False).tolist()
+    angles=np.concatenate((angles,[angles[0]]))
+
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+    plt.xticks(angles[:-1], labels, color='grey', size=8)
+    ax.plot(angles, stats, color='red', linewidth=2) # Plot the data
+    ax.fill(angles, stats, color='red', alpha=0.25) # Fill the area
+    plt.show()
+
+# Assuming that 'Revenue' values are normalized between 0 and 1
+for identity in identities:
+    make_radar_chart(
+        df_filtered['Flavour'],
+        df_filtered[df_filtered['identity'] == identity]['Revenue'],
+        df_filtered['Flavour'].tolist(),
+        [0.2, 0.4, 0.6, 0.8, 1],
+        ["20%", "40%", "60%", "80%", "100%"]
+    )
+
+# Streamlit does not support plt.show(), use st.pyplot() instead
+st.pyplot()
