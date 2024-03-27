@@ -70,6 +70,8 @@ import pydeck as pdk
 # Make sure to use the correct path to your CSV file
 df = pd.read_csv('data/ASFPS.csv', usecols=['LATITUDE', 'LONGITUDE'])
 
+
+# Define the layer for individual points with names
 layer = pdk.Layer(
     'ScatterplotLayer',
     df,
@@ -92,7 +94,7 @@ r = pdk.Deck(
     layers=[layer],
     initial_view_state=view_state,
     map_style='mapbox://styles/mapbox/light-v9',
-    tooltip={"text": df["NAME_EN"]}
+    tooltip={"text": "{NAME_EN}"}
 )
 
 # Render the map with the points and tooltips for names
