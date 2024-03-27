@@ -155,7 +155,7 @@ def create_radar_chart(data, title):
 # Read data from Excel file
 @st.cache
 def load_data(sheet):
-      pd.read_excel('data/Dataset final.xlsx', sheet_name="Flavour Analysis")
+      pd.read_excel('data/Dataset final.xlsx', sheet_name=sheet)
 
 # Load 'Flavour Analysis' sheet
 df = load_data('Flavour Analysis')
