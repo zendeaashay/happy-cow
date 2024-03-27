@@ -127,51 +127,56 @@ st.pydeck_chart(r)
 
 
 
+# Function to create radar chart
 def create_radar_chart(data, title):
     categories = list(data)
     N = len(categories)
-    
+
     # Repeat the first value to close the circular graph
     values = data.values.flatten().tolist()
     values += values[:1]
-    
+
     # Calculate angle for each category
     angles = [n / float(N) * 2 * pi for n in range(N)]
     angles += angles[:1]
-    
+
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
-    
+
     plt.xticks(angles[:-1], categories, color='black', size=10)
-    
+
     # Draw the outline of our data
     ax.plot(angles, values)
     ax.fill(angles, values, 'teal', alpha=0.1)
-    
+
     # Add a title
     plt.title(title, size=20, color='black', y=1.1)
-    
+
     return fig
 
 # Read data from Excel file
-@st.cache
+@st.experimental_memo
 def load_data(sheet):
-      pd.read_excel('data/Dataset final.xlsx', sheet_name=sheet)
+    return pd.read_excel('data/Dataset final.xlsx', sheet_name=sheet)
 
 # Load 'Flavour Analysis' sheet
 df = load_data('Flavour Analysis')
 
-# Process the data for radar chart
-# Group by 'Flavour' and sum the 'Revenue' for each flavour
-df_grouped = df.groupby('Flavour')['Revenue'].sum().reset_index()
+# Check if the DataFrame is loaded properly
+if df is not None and not df.empty:
+    # Process the data for radar chart
+    # Group by 'Flavour' and sum the 'Revenue' for each flavour
+    df_grouped = df.groupby('Flavour')['Revenue'].sum().reset_index()
 
-# Scale the 'Revenue' values between 0 and 1 for better display in radar chart
-df_grouped['Revenue'] = df_grouped['Revenue'] / df_grouped['Revenue'].max()
+    # Scale the 'Revenue' values between 0 and 1 for better display in radar chart
+    df_grouped['Revenue'] = df_grouped['Revenue'] / df_grouped['Revenue'].max()
 
-# Transpose dataframe to have columns for each flavour
-df_transposed = df_grouped.set_index('Flavour').T
+    # Transpose dataframe to have columns for each flavour
+    df_transposed = df_grouped.set_index('Flavour').T
 
-# Plot the radar chart using the processed data
-fig = create_radar_chart(df_transposed, 'Flavour Analysis')
+    # Plot the radar chart using the processed data
+    fig = create_radar_chart(df_transposed, 'Flavour Analysis')
 
-# Display the radar chart in Streamlit
-st.pyplot(fig)
+    # Display the radar chart in Streamlit
+    st.pyplot(fig)
+else:
+    st.error('Data not loaded properly. Please check the file path and sheet name.')
