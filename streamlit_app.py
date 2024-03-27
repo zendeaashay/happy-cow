@@ -4,6 +4,9 @@ import pandas as pd
 import altair as alt
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+from math import pi
+import matplotlib.pyplot as plt
+
 # Page title
 st.set_page_config(page_title='Happy Cow Case Study Group 7', page_icon='📊')
 st.title('📊 Happy Cow Case Study Group 7')
@@ -121,36 +124,54 @@ r = pdk.Deck(
 
 # Render the map with the points and tooltips for names
 st.pydeck_chart(r)
+sheet="Flavour Analysis"
 
-# Selecting flavors and identities to visualize
-flavors = st.multiselect('Select Flavors', options=df['Flavour'].unique())
-identities = st.multiselect('Select Identities', options=df['identity'].unique())
 
-# Filtering data
-df_filtered = df[df['Flavour'].isin(flavors) & df['identity'].isin(identities)]
-
-# Radar chart
-def make_radar_chart(name, stats, attribute_labels, plot_markers, plot_str_markers):
-    labels=np.array(attribute_labels)
-    stats=np.concatenate((stats,[stats[0]]))
-    angles=np.linspace(0, 2*np.pi, len(labels), endpoint=False).tolist()
-    angles=np.concatenate((angles,[angles[0]]))
-
+def create_radar_chart(data, title):
+    categories = list(data)
+    N = len(categories)
+    
+    # Repeat the first value to close the circular graph
+    values = data.values.flatten().tolist()
+    values += values[:1]
+    
+    # Calculate angle for each category
+    angles = [n / float(N) * 2 * pi for n in range(N)]
+    angles += angles[:1]
+    
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
-    plt.xticks(angles[:-1], labels, color='grey', size=8)
-    ax.plot(angles, stats, color='red', linewidth=2) # Plot the data
-    ax.fill(angles, stats, color='red', alpha=0.25) # Fill the area
-    plt.show()
+    
+    plt.xticks(angles[:-1], categories, color='black', size=10)
+    
+    # Draw the outline of our data
+    ax.plot(angles, values)
+    ax.fill(angles, values, 'teal', alpha=0.1)
+    
+    # Add a title
+    plt.title(title, size=20, color='black', y=1.1)
+    
+    return fig
 
-# Assuming that 'Revenue' values are normalized between 0 and 1
-for identity in identities:
-    make_radar_chart(
-        df_filtered['Flavour'],
-        df_filtered[df_filtered['identity'] == identity]['Revenue'],
-        df_filtered['Flavour'].tolist(),
-        [0.2, 0.4, 0.6, 0.8, 1],
-        ["20%", "40%", "60%", "80%", "100%"]
-    )
+# Read data from Excel file
+@st.cache
+def load_data(sheet):
+      pd.read_excel('data/Dataset final.xlsx', sheet_name=sheet)
 
-# Streamlit does not support plt.show(), use st.pyplot() instead
-st.pyplot()
+# Load 'Flavour Analysis' sheet
+df = load_data('Flavour Analysis')
+
+# Process the data for radar chart
+# Group by 'Flavour' and sum the 'Revenue' for each flavour
+df_grouped = df.groupby('Flavour')['Revenue'].sum().reset_index()
+
+# Scale the 'Revenue' values between 0 and 1 for better display in radar chart
+df_grouped['Revenue'] = df_grouped['Revenue'] / df_grouped['Revenue'].max()
+
+# Transpose dataframe to have columns for each flavour
+df_transposed = df_grouped.set_index('Flavour').T
+
+# Plot the radar chart using the processed data
+fig = create_radar_chart(df_transposed, 'Flavour Analysis')
+
+# Display the radar chart in Streamlit
+st.pyplot(fig)
