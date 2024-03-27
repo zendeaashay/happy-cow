@@ -64,7 +64,7 @@ bar_chart = alt.Chart(filtered_df).mark_bar().encode(
 ).interactive()
 st.altair_chart(bar_chart, use_container_width=True)
 
-melted_df['Week'] = pd.to_datetime(melted_df['Week'])
+melted_df['Week'] = pd.to_datetime(melted_df['Week'], format='%m/%d/%Y', errors='coerce')
 
 # Cumulative Sales Over Time
 cumulative_sales = (
