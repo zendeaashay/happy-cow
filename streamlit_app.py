@@ -64,47 +64,35 @@ bar_chart = alt.Chart(filtered_df).mark_bar().encode(
 ).interactive()
 st.altair_chart(bar_chart, use_container_width=True)
 
-from prettymaps import plot
-from matplotlib import pyplot as plt
+import pydeck as pdk
 
-# Initialize a matplotlib figure
-fig, ax = plt.subplots(figsize = (12, 12), constrained_layout = True)
+# Load data into a pandas DataFrame
+# Make sure to use the correct path to your CSV file
+df = pd.read_csv('data/ASFPS.csv', usecols=['LATITUDE', 'LONGITUDE'])
 
-# Define the location and parameters for the plot
-backup = plot(
-    # Center the map around a location
-    'Hong Kong Island',
-
-    # Define the radius to plot around the central point
-    radius = 1100,
-
-    # Define additional plotting parameters as needed
-    ax = ax,
-
-    # Layers to plot (streets, buildings, etc.)
-    layers = {
-            'perimeter': {},
-            'streets': {
-                'width': {
-                    'motorway': 5,
-                    'primary': 4,
-                    'secondary': 3,
-                    'tertiary': 2,
-                    'residential': 1,
-                    'service': 0.5,
-                    'footway': 0,
-                },
-            },
-            'building': {'tags': {'building': True, 'landuse': ['retail', 'commercial']}},
-            'water': {'tags': {'natural': ['water', 'bay']}},
-            'green': {'tags': {'landuse': 'grass', 'natural': ['island', 'wood']}},
-            'forest': {'tags': {'landuse': 'forest'}},
-            'garden': {'tags': {'leisure': 'garden'}},
-    },
-
-    # Additional parameters can include drawing labels, plotting points, etc.
+# Define a layer for the heatmap
+layer = pdk.Layer(
+    'HeatmapLayer',     # The type of layer to use
+    df,                 # The pandas DataFrame containing the data
+    get_position=['LONGITUDE', 'LATITUDE'],  # The [longitude, latitude] pair
+    get_weight=1,       # The weight of each position
+    radius_pixels=60,   # The radius of each heatmap point
 )
 
-# Show the plot
-plt.savefig('hong_kong_island.png')
-plt.show()
+# Set the initial view state for the map
+view_state = pdk.ViewState(
+    latitude=df['LATITUDE'].mean(),
+    longitude=df['LONGITUDE'].mean(),
+    zoom=11,
+    pitch=0
+)
+
+# Create the deck.gl map
+r = pdk.Deck(
+    layers=[layer],
+    initial_view_state=view_state,
+    map_style='mapbox://styles/mapbox/light-v9'
+)
+
+# Render the map
+st.pydeck_chart(r)
