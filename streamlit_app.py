@@ -126,7 +126,7 @@ r = pdk.Deck(
 st.pydeck_chart(r)
 
 
-
+st.markdown("Radar chart for revenue contribution for each 'Flavour' ")
 # Function to create radar chart
 def create_radar_chart(data, title):
     categories = list(data)
