@@ -121,6 +121,7 @@ r = pdk.Deck(
     map_style='mapbox://styles/mapbox/light-v9',
     tooltip={"text": "{NAME_EN}"}
 )
+st.title("New locations near universities to target students and staff customer segments")
 
 # Render the map with the points and tooltips for names
 st.pydeck_chart(r)
