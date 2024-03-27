@@ -70,13 +70,13 @@ import pydeck as pdk
 # Make sure to use the correct path to your CSV file
 df = pd.read_csv('data/ASFPS.csv', usecols=['LATITUDE', 'LONGITUDE'])
 
-# Define a layer for the heatmap
 layer = pdk.Layer(
-    'HeatmapLayer',     # The type of layer to use
-    df,                 # The pandas DataFrame containing the data
-    get_position=['LONGITUDE', 'LATITUDE'],  # The [longitude, latitude] pair
-    get_weight=1,       # The weight of each position
-    radius_pixels=60,   # The radius of each heatmap point
+    'ScatterplotLayer',
+    df,
+    get_position=['LONGITUDE', 'LATITUDE'],
+    get_color=[255, 0, 0, 160],  # You can customize the color
+    get_radius=100,  # You can customize the radius of the points
+    pickable=True
 )
 
 # Set the initial view state for the map
@@ -91,8 +91,9 @@ view_state = pdk.ViewState(
 r = pdk.Deck(
     layers=[layer],
     initial_view_state=view_state,
-    map_style='mapbox://styles/mapbox/light-v9'
+    map_style='mapbox://styles/mapbox/light-v9',
+    tooltip={"text": "{NAME_EN}"}
 )
 
-# Render the map
+# Render the map with the points and tooltips for names
 st.pydeck_chart(r)
