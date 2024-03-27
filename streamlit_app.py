@@ -124,7 +124,7 @@ r = pdk.Deck(
 
 # Render the map with the points and tooltips for names
 st.pydeck_chart(r)
-sheet="Flavour Analysis"
+
 
 
 def create_radar_chart(data, title):
@@ -155,7 +155,7 @@ def create_radar_chart(data, title):
 # Read data from Excel file
 @st.cache
 def load_data(sheet):
-      pd.read_excel('data/Dataset final.xlsx', sheet_name=sheet)
+      pd.read_excel('data/Dataset final.xlsx', sheet_name="Flavour Analysis")
 
 # Load 'Flavour Analysis' sheet
 df = load_data('Flavour Analysis')
